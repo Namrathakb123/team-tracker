@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Nobody may read or write the database directly from a browser. Everything goes through the app's server
+// (src/app/api), which checks who is signed in and what they may do, and uses Firebase's admin access.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

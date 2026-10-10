@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Global Pointer Cursor for all interactive buttons, selects, and options */
+button,
+select,
+option,
+summary,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="date"],
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Ensure disabled buttons show not-allowed cursor */
+button:disabled,
+input:disabled,
+select:disabled,
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
