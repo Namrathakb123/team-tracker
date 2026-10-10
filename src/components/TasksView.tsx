@@ -169,6 +169,17 @@ export function TasksView({ routeParams, navigateTo }: { routeParams?: any, navi
     setEditingDetails(false);
   };
 
+
+  // Views, layout, search and filters. Users start on their own tasks; admins on everything.
+  const [view, setView] = useState<TaskView>(isAdmin ? 'all' : 'mine');
+  const [layout, setLayout] = useState<'list' | 'board'>('list');
+  const [searchText, setSearchText] = useState('');
+  const [showFilter, setShowFilter] = useState<'open' | 'closed' | 'all'>('open');
+  const [dueFilter, setDueFilter] = useState<DueFilter>('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [clientFilter, setClientFilter] = useState('');     // a client id, or INTERNAL
+  const [assigneeFilter, setAssigneeFilter] = useState(''); // a team member id, or 'none' for nobody
+
   // The "New task" window, opened by its button or by "Make a task" on another page (with the text filled in).
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [newTaskInitial, setNewTaskInitial] = useState<{ description?: string; clientId?: string }>({});
@@ -183,16 +194,6 @@ export function TasksView({ routeParams, navigateTo }: { routeParams?: any, navi
     if (routeParams.priorityFilter) setPriorityFilter(routeParams.priorityFilter);
     if (routeParams.taskView) setView(routeParams.taskView);
   }, [routeParams]);
-
-  // Views, layout, search and filters. Users start on their own tasks; admins on everything.
-  const [view, setView] = useState<TaskView>(isAdmin ? 'all' : 'mine');
-  const [layout, setLayout] = useState<'list' | 'board'>('list');
-  const [searchText, setSearchText] = useState('');
-  const [showFilter, setShowFilter] = useState<'open' | 'closed' | 'all'>('open');
-  const [dueFilter, setDueFilter] = useState<DueFilter>('');
-  const [priorityFilter, setPriorityFilter] = useState('');
-  const [clientFilter, setClientFilter] = useState('');     // a client id, or INTERNAL
-  const [assigneeFilter, setAssigneeFilter] = useState(''); // a team member id, or 'none' for nobody
   const filtersActive = !!(searchText.trim() || showFilter !== 'open' || dueFilter || priorityFilter || clientFilter || assigneeFilter);
   const clearFilters = () => {
     setSearchText('');

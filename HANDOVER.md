@@ -31,7 +31,10 @@ Never paste the contents of `.env.local` or the Firebase key file (`*-firebase-a
 - `npm run dev:local`: the private test copy (Firebase emulators on this computer, saved in `.local-firebase`).
   Sign in with the test admin **admin@test.copy / TestCopy-Admin-1** (exists only in the emulator). Needs Java.
 - `npm test`: the project's tests (52), against the emulators. All pass.
-- `npm run lint`, `npx tsc --noEmit`: both clean (lint has warnings only).
+- `npm run lint`, `npx tsc --noEmit`: both clean (lint has warnings only). `npx next build`: succeeds.
+- Next.js is 16.3.8 (security fixes). `npm audit` still lists @grpc/grpc-js (only in Firebase's browser database
+  part, which the app doesn't use) and uuid (inside the Firebase/Google libraries); their only fixes are breaking
+  downgrades, so they were left.
 - Extra unit and browser tests are kept outside the project in `../dev-tools/extra-tests/` (they were written in a
   temporary folder; the paths at the top of `run-all.sh`, `run-ui.sh` and `ui-common.js` must be pointed at their new
   place before running them). Unit tests (`run-all.sh`): all pass.
@@ -43,6 +46,8 @@ Never paste the contents of `.env.local` or the Firebase key file (`*-firebase-a
    fill in the old inline issue form (now: click "+ New task", fill the window, "Create task"). Some open a lead or task
    as the test User, which must now be given to that User (`assignedTo: "mgr-member"`). Update the tests; the app
    itself is fine.
+   Also re-check `ui-test-meetings.js` on a weekday: on a Sunday at 1:21 am it stopped at its "Next 6 days" step after
+   18 passing checks (it has time-of-day checks); the Meetings page itself worked in that run.
 2. **Grid layout on the other pages** (Clients, Leads, Meetings, Team, Customize) to match the Dashboard. Cosmetic.
 3. **Landing page:** the sign-in page is the landing page; ask the owner what else they want on it.
 
