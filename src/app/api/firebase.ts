@@ -19,25 +19,32 @@ export function usingEmulators(): boolean {
   return !!process.env.FIRESTORE_EMULATOR_HOST;
 }
 
+function cleanEnvValue(value: string): string {
+  let v = value.trim();
+  while ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+    v = v.slice(1, -1).trim();
+  }
+  return v;
+}
+
 export function firebaseApp(): App {
   if (getApps().length) return getApp();
   if (usingEmulators()) {
     // "demo-" project names only ever exist in the emulators, so nothing can reach a real project by mistake.
-    return initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID || 'demo-team-tracker' });
+    return initializeApp({ projectId: cleanEnvValue(process.env.FIREBASE_PROJECT_ID || 'demo-team-tracker') });
   }
   // The test copy must never fall back to the real database.
   if (process.env.LOCAL_TEST_DATA === 'true') {
     throw new Error('The test copy is not connected to the Firebase emulators, so it stopped before reaching real data.');
   }
-  let privateKey = requireEnv('FIREBASE_PRIVATE_KEY').trim();
-  if ((privateKey.startsWith('"') && privateKey.endsWith('"')) || (privateKey.startsWith("'") && privateKey.endsWith("'"))) {
-    privateKey = privateKey.slice(1, -1);
-  }
+  const projectId = cleanEnvValue(requireEnv('FIREBASE_PROJECT_ID'));
+  const clientEmail = cleanEnvValue(requireEnv('FIREBASE_CLIENT_EMAIL'));
+  let privateKey = cleanEnvValue(requireEnv('FIREBASE_PRIVATE_KEY'));
   privateKey = privateKey.replace(/\\n/g, '\n');
   return initializeApp({
     credential: cert({
-      projectId: requireEnv('FIREBASE_PROJECT_ID'),
-      clientEmail: requireEnv('FIREBASE_CLIENT_EMAIL'),
+      projectId,
+      clientEmail,
       privateKey,
     }),
   });

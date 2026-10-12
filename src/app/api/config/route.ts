@@ -7,13 +7,22 @@ export async function GET() {
   // On the test copy ("npm run dev:local") logins live in Firebase's emulator on this computer. Never on the live site.
   const authEmulatorHost = development ? process.env.FIREBASE_AUTH_EMULATOR_HOST : undefined;
 
+  function cleanEnv(val: string | undefined): string | undefined {
+    if (!val) return undefined;
+    let s = val.trim();
+    while ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      s = s.slice(1, -1).trim();
+    }
+    return s || undefined;
+  }
+
   const config: Record<string, string | undefined> = {
-    apiKey: (process.env.FIREBASE_API_KEY || (authEmulatorHost ? 'demo-key' : undefined))?.trim(),
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN?.trim(),
-    projectId: process.env.FIREBASE_PROJECT_ID?.trim(),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET?.trim(),
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID?.trim(),
-    appId: process.env.FIREBASE_APP_ID?.trim()
+    apiKey: cleanEnv(process.env.FIREBASE_API_KEY || (authEmulatorHost ? 'demo-key' : undefined)),
+    authDomain: cleanEnv(process.env.FIREBASE_AUTH_DOMAIN),
+    projectId: cleanEnv(process.env.FIREBASE_PROJECT_ID),
+    storageBucket: cleanEnv(process.env.FIREBASE_STORAGE_BUCKET),
+    messagingSenderId: cleanEnv(process.env.FIREBASE_MESSAGING_SENDER_ID),
+    appId: cleanEnv(process.env.FIREBASE_APP_ID)
   };
 
   // Remove empty strings so Firebase doesn't crash during initialization

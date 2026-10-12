@@ -32,7 +32,7 @@ export async function verifyToken(req: NextRequest): Promise<TokenUser> {
   try {
     return (await getAuth(firebaseApp()).verifyIdToken(token, true)) as TokenUser;
   } catch (error: any) {
-    console.warn('Rejected login token:', error?.code || error?.message || error);
+    console.warn('Rejected login token:', error?.code, error?.message || error);
     throw new Error('Unauthorized');
   }
 }
