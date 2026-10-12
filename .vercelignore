@@ -1,0 +1,7 @@
+.next
+node_modules
+.local-firebase
+.local-db
+.git
+*.log
+.env.local

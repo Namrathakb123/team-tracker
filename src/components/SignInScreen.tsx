@@ -130,10 +130,6 @@ export function SignInScreen({ onSignIn, error, preview = false }: {
           <button type="button" onClick={() => setForgotOpen(true)} className="mt-3 text-[13px] font-semibold text-sky-700 hover:underline">
             Forgot password?
           </button>
-          <div className="mt-6 rounded-lg bg-white border border-slate-200 p-4 text-[13px] text-slate-600">
-            <p className="font-semibold text-slate-700">First time here?</p>
-            <p className="mt-1">Ask an admin to give you a login on the Team page. You&apos;ll get a starting password, and choose your own when you first sign in.</p>
-          </div>
         </div>
       </section>
       {forgotOpen && <ForgotPasswordDialog onClose={() => setForgotOpen(false)} />}
