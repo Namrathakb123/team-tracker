@@ -222,7 +222,7 @@ export function ClientsView({ routeParams, navigateTo, globalDate }: { routePara
       'Category',
       'Client Status',
       'Delivery Status',
-      'Deal Value (₹)',
+      'Deal Value ($)',
       'Assigned Team Members',
       'Services',
       'Open Tasks Count',
@@ -431,8 +431,8 @@ export function ClientsView({ routeParams, navigateTo, globalDate }: { routePara
             />
           </div>
           <div className="w-32">
-            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Deal Value (₹)</label>
-            <input aria-label="New client's deal value (₹)"
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Deal Value ($)</label>
+            <input aria-label="New client's deal value ($)"
               type="number"
               min="0"
               step="any"

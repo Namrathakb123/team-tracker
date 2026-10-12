@@ -82,7 +82,7 @@ export function buildReport(data: any, { from = '', to = '', owner = '' }: Repor
     if (!statusNames.includes(s)) statusNames.push(s);
   }
   const dealRows: Cell[][] = statusNames.map(s => [
-    `Deal Value — ${s} clients (₹)`,
+    `Deal Value — ${s} clients ($)`,
     formatRupees(clients.filter(({ client }) => (client.status || 'Active') === s).reduce((sum, { client }) => sum + (Number(client.dealValue) || 0), 0)),
   ]);
 
@@ -115,7 +115,7 @@ export function buildReport(data: any, { from = '', to = '', owner = '' }: Repor
     clients: {
       key: 'clients',
       title: 'Clients',
-      headers: ['Client Name', 'Category', 'Status', 'Deal Value (₹)', 'Delivery Status', 'Services', 'Team Members', `Updates${inPeriod}`, `Tasks${inPeriod}`],
+      headers: ['Client Name', 'Category', 'Status', 'Deal Value ($)', 'Delivery Status', 'Services', 'Team Members', `Updates${inPeriod}`, `Tasks${inPeriod}`],
       rows: clients.map(({ client: c, activity }) => [
         c.name || '',
         c.category || '—',
@@ -175,7 +175,7 @@ export function reportToXlsx(report: Report, when: Date = new Date()): Uint8Arra
     name: report[key].title,
     rows: [report[key].headers, ...report[key].rows],
     boldFirstRow: true,
-    indianGroupingColumns: report[key].headers.flatMap((h, i) => (h.endsWith('(₹)') ? [i] : [])),
+    indianGroupingColumns: report[key].headers.flatMap((h, i) => (h.endsWith('($)') || h.endsWith('(₹)') ? [i] : [])),
   })), when);
 }
 

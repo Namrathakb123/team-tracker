@@ -404,7 +404,7 @@ export function ClientDetail({ client: selectedClient, navigateTo, globalDate, o
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Deal value (₹)</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Deal value ($)</label>
                   <input
                     type="number"
                     min="0"

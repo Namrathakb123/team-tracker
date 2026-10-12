@@ -168,7 +168,7 @@ export function DashboardView({ globalDate, navigateTo }: { globalDate: string; 
     // Statuses are coloured by meaning (or the colour picked in Customize), not by their place in the list.
     if (header === 'Status') return `font-bold ${softClass(data.settings, sheet === 'clients' ? 'clientStatuses' : 'issueStatuses', String(value))}`;
     if (header === 'Priority') return `font-medium ${priorityBadgeClass(String(value), data.settings)}`;
-    if (header === 'Deal Value (₹)') return 'font-mono font-bold';
+    if (header === 'Deal Value ($)' || header === 'Deal Value (₹)') return 'font-mono font-bold';
     if (header === 'Delivery Status') return `font-medium ${softClass(data.settings, 'deliveryStatuses', String(value))}`;
     if (header === 'Services') return 'text-slate-600 font-mono text-[11px]';
     if (header === 'Created' || header === 'Resolved Date' || header === 'Date') return 'font-mono text-slate-600';
@@ -568,7 +568,7 @@ export function DashboardView({ globalDate, navigateTo }: { globalDate: string; 
                           const header = report[activeReportTab].headers[c];
                           return (
                             <td key={c} className={`p-2 border border-slate-200 ${previewCellClass(activeReportTab, header, value)}`}>
-                              {header === 'Deal Value (₹)' ? formatRupees(value)
+                              {(header === 'Deal Value ($)' || header === 'Deal Value (₹)') ? formatRupees(value)
                                 : (header === 'Created' || header === 'Resolved Date' || header === 'Date') && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(String(value)) ? formatDate(String(value))
                                 : value}
                             </td>

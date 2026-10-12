@@ -438,7 +438,7 @@ export function LeadDetail({ lead: selectedLead, navigateTo, onClose }: {
                 <input autoFocus value={convertCategory} onChange={e => setConvertCategory(e.target.value)} placeholder="e.g. Real Estate" className="w-full border border-slate-200 rounded-lg p-2.5 text-[13px] focus:outline-none focus:border-sky-500 bg-white text-slate-800 font-medium" />
               </label>
               <label className="block">
-                <span className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Deal value (₹)</span>
+                <span className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Deal value ($)</span>
                 <input type="number" min="0" step="any" placeholder="0" value={convertDeal} onChange={e => setConvertDeal(e.target.value)} className="w-full border border-slate-200 rounded-lg p-2.5 text-[13px] focus:outline-none focus:border-sky-500 bg-white text-slate-800 font-medium" />
               </label>
               <div className="pt-2 flex gap-3">
