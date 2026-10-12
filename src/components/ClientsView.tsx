@@ -242,10 +242,62 @@ export function ClientsView({ routeParams, navigateTo, globalDate }: { routePara
     downloadCsv(sheetToCsvFile({ headers, rows }), `velvo-clients-${localDateKey()}.csv`);
   };
 
+  const nonArchivedClients = useMemo(() => (data.clients || []).filter((c: any) => !c.archived), [data.clients]);
+  const activeClientsCount = useMemo(() => nonArchivedClients.filter((c: any) => isActiveClientStatus(c.status, data.settings)).length, [nonArchivedClients, data.settings]);
+  const totalPipelineValue = useMemo(() => nonArchivedClients.reduce((sum: number, c: any) => sum + (Number(c.dealValue) || 0), 0), [nonArchivedClients]);
+  const clientOpenTasksCount = useMemo(() => {
+    const ids = new Set(nonArchivedClients.map((c: any) => c.id));
+    return (data.issues || []).filter((i: any) => i.clientId && ids.has(i.clientId) && !isClosedIssueStatus(i.status, data.settings)).length;
+  }, [nonArchivedClients, data.issues, data.settings]);
+
   // --- MAIN TABLE VIEW ---
   return (
     <div className="max-w-7xl mx-auto space-y-4 pb-8 font-sans">
       <PageHeader title="Clients CRM" subtitle="Everything logged against a client, in one place." />
+
+      {/* Summary Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <button
+          type="button"
+          onClick={() => { setStatusFilter(''); setSearchQuery(''); }}
+          title="Show all active clients"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Clients</span>
+          <span className="block text-2xl font-extrabold text-slate-800 mt-2">{nonArchivedClients.length}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">Current total non-archived</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStatusFilter(ACTIVE_FILTER)}
+          title="Filter to active clients"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active Clients</span>
+          <span className="block text-2xl font-extrabold text-emerald-600 mt-2">{activeClientsCount}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">Ticked active in customize</span>
+        </button>
+
+        <div className="bg-white border border-slate-200 rounded-lg p-4 text-left">
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pipeline Value</span>
+          <span className="block text-2xl font-extrabold text-slate-800 mt-2 font-mono">{formatRupees(totalPipelineValue)}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">Total deal value</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigateTo('issues')}
+          title="Open Tasks page"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Open Tasks</span>
+          <span className={`block text-2xl font-extrabold mt-2 ${clientOpenTasksCount > 0 ? 'text-amber-500' : 'text-slate-800'}`}>
+            {clientOpenTasksCount}
+          </span>
+          <span className="block text-[11px] text-slate-400 mt-1">Tasks linked to clients</span>
+        </button>
+      </div>
 
       {recentlyArchived && (
         <div role="status" className="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-4 py-3 text-[13px] font-medium flex items-center justify-between gap-3">

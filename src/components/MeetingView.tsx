@@ -14,7 +14,7 @@ import { CantAttendDialog, MeetingListCard, MyNotesCard, MonthlyNotesCard } from
 import { PageHeader } from './PageHeader';
 
 // The Daily Meeting page: when and where the meeting is, the days with no meeting, telling the team you can't attend,
-// and the list of who is in the meeting. (The day's updates, open issues and follow-ups are on the Dashboard.)
+// and the list of who is in the meeting. (The day's updates, open tasks and follow-ups are on the Dashboard.)
 export function MeetingView({ globalDate, onBack }: { globalDate: string; onBack?: () => void }) {
   const { data, saveData } = useData();
   const { user, isAdmin } = useAuth();

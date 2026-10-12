@@ -29,11 +29,18 @@ async function main() {
     user = await auth.getUserByEmail(email);
   } catch (e) {
     if (e?.code === 'auth/user-not-found') {
-      console.error(`There is no login for ${email} in the Firebase project "${process.env.FIREBASE_PROJECT_ID}".`);
-      console.error('Create it first: Firebase console > Authentication > Users > Add user.');
-      process.exit(1);
+      const password = process.argv[3];
+      if (password) {
+        user = await auth.createUser({ email, password, emailVerified: true });
+        console.log(`Created new login for ${email}.`);
+      } else {
+        console.error(`There is no login for ${email} in the Firebase project "${process.env.FIREBASE_PROJECT_ID}".`);
+        console.error('Create it first in Firebase console, or pass a password: node scripts/make-admin.js you@example.com YourPassword');
+        process.exit(1);
+      }
+    } else {
+      throw e;
     }
-    throw e;
   }
   await auth.setCustomUserClaims(user.uid, { ...(user.customClaims || {}), role: 'admin' });
   if (!user.emailVerified) await auth.updateUser(user.uid, { emailVerified: true });

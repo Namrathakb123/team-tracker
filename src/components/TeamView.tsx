@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { isClosedIssueStatus, isActiveClientStatus } from '../utils/issues';
@@ -261,6 +261,28 @@ export function TeamView({ navigateTo }: { navigateTo?: (view: string, params?: 
            (t.role || '').toLowerCase().includes(q);
   });
 
+  const totalMembersCount = activeTeam.length;
+  const activeClientsStaffedCount = useMemo(() => {
+    return activeTeam.filter((m) =>
+      (data.clients || []).some((c: any) =>
+        !c.archived &&
+        isActiveClientStatus(c.status, data.settings) &&
+        ((c.team || []).includes(m.id) || c.assignedTo === m.id || (c.team || []).includes(m.name) || c.assignedTo === m.name)
+      )
+    ).length;
+  }, [activeTeam, data.clients, data.settings]);
+  const totalOpenTasksAssigned = useMemo(() => {
+    const memberIds = new Set(activeTeam.map((m) => m.id));
+    const memberNames = new Set(activeTeam.map((m) => m.name));
+    return (data.issues || []).filter((i: any) =>
+      !isClosedIssueStatus(i.status, data.settings) &&
+      (memberIds.has(i.assigneeId) || memberNames.has(i.assigneeId))
+    ).length;
+  }, [activeTeam, data.issues, data.settings]);
+  const meetingMembersCount = useMemo(() => {
+    return activeTeam.filter((m) => memberGroup(m) !== NOT_IN_MEETING).length;
+  }, [activeTeam]);
+
   return (
     <div className="max-w-7xl mx-auto space-y-4 font-sans pb-8">
       <PageHeader
@@ -269,6 +291,50 @@ export function TeamView({ navigateTo }: { navigateTo?: (view: string, params?: 
           ? 'Add people, give them a login, and see their active work.'
           : 'See who is on the team. Only admins can add or remove team members.'}
       />
+
+      {/* Summary Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <button
+          type="button"
+          onClick={() => setSearchQuery('')}
+          title="Show all active team members"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Team Members</span>
+          <span className="block text-2xl font-extrabold text-slate-800 mt-2">{totalMembersCount}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">Active staff members</span>
+        </button>
+
+        <div className="bg-white border border-slate-200 rounded-lg p-4 text-left">
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active On Clients</span>
+          <span className="block text-2xl font-extrabold text-emerald-600 mt-2">{activeClientsStaffedCount}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">Staffing active accounts</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigateTo && navigateTo('issues')}
+          title="View open tasks"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Assigned Tasks</span>
+          <span className={`block text-2xl font-extrabold mt-2 ${totalOpenTasksAssigned > 0 ? 'text-amber-500' : 'text-slate-800'}`}>
+            {totalOpenTasksAssigned}
+          </span>
+          <span className="block text-[11px] text-slate-400 mt-1">Open tasks across team</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigateTo && navigateTo('meeting')}
+          title="View daily meeting roster"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Meeting Roster</span>
+          <span className="block text-2xl font-extrabold text-sky-600 mt-2">{meetingMembersCount}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">In daily meeting</span>
+        </button>
+      </div>
 
       {/* Add Member Form */}
       {isAdmin && (

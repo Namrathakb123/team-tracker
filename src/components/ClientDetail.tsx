@@ -359,7 +359,7 @@ export function ClientDetail({ client: selectedClient, navigateTo, globalDate, o
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Deal value', value: formatRupees(selectedClient.dealValue) },
-          { label: 'Open issues', value: openIssuesCount, isDanger: openIssuesCount > 0 },
+          { label: 'Open tasks', value: openIssuesCount, isDanger: openIssuesCount > 0 },
           { label: 'Updates', value: clientUpdates.length },
           { label: 'Team', value: (selectedClient.team || []).length }
         ].map((stat, idx) => (

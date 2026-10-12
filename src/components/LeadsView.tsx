@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { badgeClass } from '../utils/colors';
 import { priorityBadgeClass } from '../utils/priorities';
@@ -8,7 +8,7 @@ import { compareValues } from '../utils/sort';
 import { defaultItem, listOptions } from '../utils/defaults';
 import { tidyName, sameName, teamMemberName } from '../utils/clients';
 import { localDateKey, endOfWeek, formatDate } from '../utils/dates';
-import { leadFilterDate, nextFollowUp, followUpState, phoneOwner } from '../utils/leads';
+import { leadFilterDate, nextFollowUp, followUpState, phoneOwner, isClosedLeadStatus } from '../utils/leads';
 import { cleanPhone, phoneDigits, phoneProblem } from '../utils/phone';
 import { useAuth } from '../context/AuthContext';
 import { PageHeader } from './PageHeader';
@@ -198,9 +198,63 @@ export function LeadsView({ routeParams, navigateTo }: { routeParams?: any, navi
     return <LeadDetail key={selectedLead.id} lead={selectedLead} navigateTo={navigateTo} onClose={() => openLead(null)} />;
   }
 
+  const allLeadsCount = (data.leads || []).length;
+  const openLeadsCount = useMemo(() => (data.leads || []).filter((l: any) => !isClosedLeadStatus(l.status, data.settings)).length, [data.leads, data.settings]);
+  const dueTodayCount = useMemo(() => (data.leads || []).filter((l: any) => followUpState(l, today, data.settings) === 'today').length, [data.leads, today, data.settings]);
+  const overdueCount = useMemo(() => (data.leads || []).filter((l: any) => followUpState(l, today, data.settings) === 'overdue').length, [data.leads, today, data.settings]);
+
   return (
     <div className="max-w-7xl mx-auto space-y-4 font-sans pb-8">
       <PageHeader title="Lead Followups & Pipeline" subtitle="Track lead interactions, schedule followups, and convert leads into clients." />
+
+      {/* Summary Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <button
+          type="button"
+          onClick={() => { handleResetFilters(); openLead(null); }}
+          title="Show all leads"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Leads</span>
+          <span className="block text-2xl font-extrabold text-slate-800 mt-2">{allLeadsCount}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">All pipeline records</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { handleResetFilters(); setDueView('all'); }}
+          title="Show open leads"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Open Leads</span>
+          <span className="block text-2xl font-extrabold text-sky-600 mt-2">{openLeadsCount}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">Not marked closed</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setDueView('today')}
+          title="Filter to follow-ups due today"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Today</span>
+          <span className={`block text-2xl font-extrabold mt-2 ${dueTodayCount > 0 ? 'text-amber-600' : 'text-slate-800'}`}>{dueTodayCount}</span>
+          <span className="block text-[11px] text-slate-400 mt-1">Follow-up due today</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setDueView('overdue')}
+          title="Filter to overdue follow-ups"
+          className="bg-white border border-slate-200 rounded-lg p-4 text-left transition-all hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer"
+        >
+          <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Overdue Follow-ups</span>
+          <span className={`block text-2xl font-extrabold mt-2 ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-800'}`}>
+            {overdueCount}
+          </span>
+          <span className="block text-[11px] text-slate-400 mt-1">Passed scheduled date</span>
+        </button>
+      </div>
 
       {/* The address points to a record that isn't in the data (removed, or a wrong link). */}
       {selectedLeadId && !selectedLead && (
