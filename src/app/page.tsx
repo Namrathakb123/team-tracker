@@ -28,17 +28,20 @@ export default function Home() {
   // The open page is read from the address, which needs a Suspense boundary (see the Next.js useSearchParams docs).
   return (
     <ConfirmProvider>
-      <Suspense fallback={<LoadingScreen text="Loading Team Tracker..." />}>
+      <Suspense fallback={<SignInScreen onSignIn={() => {}} error={null} />}>
         <AppShell />
       </Suspense>
     </ConfirmProvider>
   );
 }
 
-function LoadingScreen({ text }: { text: string }) {
+function LoadingScreen({ text }: { text?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
-      <div className="animate-pulse text-lg font-medium text-slate-500">{text}</div>
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-3 border-teal-500 border-t-transparent rounded-full animate-spin" />
+        {text && <div className="text-sm font-medium text-slate-500">{text}</div>}
+      </div>
     </div>
   );
 }
@@ -102,12 +105,12 @@ function AppShell() {
     return <SignInScreen onSignIn={() => {}} error={null} preview />;
   }
 
-  if (loading) {
-    return <LoadingScreen text="Loading Team Tracker..." />;
-  }
-
   if (!user) {
     return <SignInScreen onSignIn={login} error={loginError} />;
+  }
+
+  if (loading) {
+    return <LoadingScreen />;
   }
 
   // Signed in with a starting password from an admin: they choose their own before anything else.
@@ -175,7 +178,7 @@ function AppShell() {
 
   // Data is still on its way: wait instead of showing empty pages.
   if (!dataLoaded) {
-    return <LoadingScreen text="Loading your data..." />;
+    return <LoadingScreen />;
   }
 
   // Opens a page by changing the address. The browser keeps each address in its history, so Back returns to it.

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
   getAuth, connectAuthEmulator, onIdTokenChanged, signInWithEmailAndPassword, signOut, updatePassword,
-  reauthenticateWithCredential, EmailAuthProvider, browserLocalPersistence, setPersistence, type User,
+  reauthenticateWithCredential, EmailAuthProvider, browserSessionPersistence, setPersistence, type User,
 } from 'firebase/auth';
 import { describeLoginError, describePasswordChangeError } from '../utils/loginErrors';
 import { emailProblem, isAccessRole, passwordProblem, type AccessRole } from '../utils/accounts';
@@ -101,9 +101,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (isMounted) setTestData(usingTestData);
       const auth = getAuth(getApp());
       try {
-        await setPersistence(auth, browserLocalPersistence);
+        await setPersistence(auth, browserSessionPersistence);
       } catch (e) {
         console.warn('Could not set persistence', e);
+      }
+
+      // If opening in a new tab or browser session without active sign-in, clear any previous session
+      const hasActiveSession = typeof window !== 'undefined' && sessionStorage.getItem('velvo_active_session') === 'true';
+      if (!hasActiveSession && auth.currentUser) {
+        await signOut(auth).catch(() => {});
       }
 
       // What the login may do travels inside its token ("custom claims", set by the server when an admin creates or
@@ -159,6 +165,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     try {
       await signInWithEmailAndPassword(getAuth(getApp()), email.trim(), password);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('velvo_active_session', 'true');
+      }
       return true;
     } catch (error: any) {
       console.warn('Login error', error?.code || error);
@@ -169,6 +178,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setLoginError(null);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('velvo_active_session');
+    }
     if (getApps().length) signOut(getAuth(getApp()));
   };
 
